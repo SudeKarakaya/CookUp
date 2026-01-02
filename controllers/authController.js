@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { UserModel } from "../models/user.js";
 
+// Register with email and password
 export const register = async (req, res) => {
   const { email, password } = req.body;
 
@@ -12,6 +13,7 @@ export const register = async (req, res) => {
   res.json({ message: "Registered" });
 };
 
+// Login by checking email and password from Firestore
 export const login = async (req, res) => {
   const { email, password } = req.body;
 

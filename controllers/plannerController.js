@@ -1,21 +1,25 @@
 import { PlannerModel } from "../models/planner.js";
 import axios from "axios";
 
+// Gel all planned meals for the user
 export const getPlanner = async (req, res) => {
   const plans = await PlannerModel.getPlans(req.user.email);
   res.json(plans);
 };
 
+// Add a new meal to the weekly planner
 export const addPlan = async (req, res) => {
   await PlannerModel.addPlan(req.user.email, req.body);
   res.json({ message: "Added to planner" });
 };
 
+// Remove a meal from the planner
 export const deletePlan = async (req, res) => {
   await PlannerModel.deletePlan(req.user.email, req.params.id);
   res.json({ message: "Deleted" });
 };
 
+// Generate a shopping list based on all meals in the planner
 export const generateShoppingList = async (req, res) => {
   try {
     const plans = await PlannerModel.getPlans(req.user.email);
@@ -29,6 +33,7 @@ export const generateShoppingList = async (req, res) => {
     for (const plan of plans) {
       const mealId = plan.mealId;
 
+      // Fetch meal details from api
       const response = await axios.get(
         `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mealId}`
       );
