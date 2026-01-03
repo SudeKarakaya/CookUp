@@ -1,16 +1,23 @@
-import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
-dotenv.config();
+import admin from 'firebase-admin';
 
-export const auth = (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  if(!token) return res.status(401).json({ message: "No token" });
+export const auth = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'No token' });
+  }
+
+  const token = authHeader.split('Bearer ')[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    const decoded = await admin.auth().verifyIdToken(token);
+    req.user = {
+      uid: decoded.uid,
+      email: decoded.email,
+    };
     next();
-  } catch(err){
-    return res.status(403).json({ message: "Invalid token" });
+  } catch (error) {
+    console.error('Token verification failed:', error.message);
+    return res.status(403).json({ message: 'Invalid token' });
   }
 };
